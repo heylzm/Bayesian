@@ -1,3 +1,4 @@
+
 # Title: Bayesian modeling and prediction for movies
 # Description:   Data Analysis Project_Week 5/Bayesian Statistics at Coursera
 # Author:        Alex Li
@@ -5,9 +6,6 @@
 # ============================================================================================================
 
 Part 1 ：Load
-
-install.packages("devtools")
-devtools::install_github("StatsWithR/statsr")
 
 # Load Packages
 library('ggplot2')
@@ -28,8 +26,9 @@ data <- movies
 dim(data)
 
 # ============================================================================================================
-Part 2 ：Preparation
+Part 2 ：Categoricalize
 
+# Lets create some categorical variables for analysis.
 # Reasign "yes / no" to feature_film,features drama, mpaa_rating_R, Oscar_Season and summer_season
 data <-
   data %>% mutate(feature_film = as.factor(ifelse(title_type ==  'Feature Film', 'yes', 'no')))
@@ -153,11 +152,6 @@ max(data.new$audience_score)
 # ============================================================================================================
 
 # Part 4 : Modeling
-
-# 4. Modeling: (15 points) Develop a Bayesian regression model to predict `audience_score` from the following explanatory variables. Note that some of these variables
-# are in the original dataset provided, and others are new variables you constructed earlier:`feature_film`,` drama`, `runtime`, `mpaa_rating_R`, `thtr_rel_year`,
-# `oscar_season`, `summer_season`, `imdb_rating`, `imdb_num_votes`, `critics_score`, `best_pic_nom`, `best_pic_win`, `best_actor_win`, `best_actress_win`, `best_dir_win`,
-# `top200_box`. Complete Bayesian model selection and report the final model. Also perform model diagnostics and interpret coefficients of your final model in context of the data.
 
 features <-
   c(
@@ -317,9 +311,8 @@ features <-
    
     # AIC Model Selection 
 
-    # The AIC model might not deliver the parsimonious model, but often provides a model, which provides a better 
-    # prediction.   
-    # We use the backward elimination to find the best model.  
+    # AIC might not deliver the parsimonious model, but usually provides a better prediction.   
+    # We can use the backward elimination to find the best model.  
     
     library('MASS')  # Recursive Feature Elimination functions
     lm.AIC <- lm(formula, data = data.model)
@@ -461,24 +454,34 @@ features <-
 
 # Part 5 : Prediction
 
+#  we will use the movie Patriots Day for our prediction
+pd <- data.frame(
+  audience_score=0,
+  feature_film=factor("yes", levels=c("no", "yes")),
+  drama=factor("no", levels=c("no", "yes")),
+  runtime=120, 
+  mpaa_rating_R=factor("yes", levels=c("no", "yes")),
+  thtr_rel_year=2016,
+  oscar_season=factor("yes", levels=c("no", "yes")),
+  summer_season=factor("yes", levels=c("no", "yes")),
+  imdb_num_votes=58022,
+  critics_score=97, 
+  best_pic_nom=factor("yes", levels=c("no", "yes")),
+  best_pic_win=factor("no", levels=c("no", "yes")),
+  best_actor_win=factor("no", levels=c("no", "yes")),
+  best_actress_win=factor("no", levels=c("no", "yes")),
+  best_dir_win=factor("no", levels=c("no", "yes")),
+  top200_box=factor("yes", levels=c("no", "yes"))
+)
+p <- predict(bm, newdata=pd, estimator="BMA", se.fit=TRUE)
 
-# 5. Prediction: (5 points) Pick a movie from 2016 (a new movie that is not in the sample) and do a prediction for this movie using your the model you developed and the
-# `predict` function in R.
+p$fit
 
 # ============================================================================================================
 
 # Part 6 : Conclusion
+# According to the plots above the best model is the one including 'feature_film', 'drama', 'imdb_num_votes' and 'critics_score'. 
+# A linear regression model using bayesian model averaging was created 
+# which has some potential to predict the movie audience_score based on the given coefficients. 
+# To improve the model we may need more data and include other alternative coefficients not in this data set. 
 
-
-
-# 6. Conclusion: (3 points) A brief summary of your findings from the previous sections without repeating your statements from earlier as well as a discussion of what you have
-# learned about the data and your research question. You should also discuss any shortcomings of your current study (either due to data collection or methodology) and include
-# ideas for possible future research.
-
-# In addition to these parts, there are also 6 points allocated to format, overall organization, and readability of your project. Total points add up to 50 points. See the assessment
-# rubric on the Project Files and Rubric page for more details on how your peers will evaluate your work.
-
-# You can begin working on the project immediately. Please save your work as you go along. When you're ready to submit your work for evaluation, remember to click the "Submit" button.
-
-#After you submit your proposal, please provide feedback to others on their projects. Please assess at least 3 projects. This peer assessment will not only provide you with experience
-# with a data set and research questions but also prepare for your projects in the future courses in the Specialization.
